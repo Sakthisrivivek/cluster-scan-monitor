@@ -1,0 +1,14 @@
+bin
+testbin/*
+*.test
+*.out
+
+!pkg/**/zz_generated.*
+
+.idea
+*.swp
+*.swo
+*~
+.DS_Store
+
+index*
