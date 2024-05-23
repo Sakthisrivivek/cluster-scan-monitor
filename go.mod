@@ -1,4 +1,4 @@
-module github.com/clusterscan/clusterscan-operator
+module github.com/sakthisrivivek/cluster-scan-monitor
 
 go 1.20
 
