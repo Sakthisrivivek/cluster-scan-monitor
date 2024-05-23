@@ -8,8 +8,8 @@ layout:
 plugins:
   manifests.sdk.operatorframework.io/v2: {}
   scorecard.sdk.operatorframework.io/v2: {}
-projectName: k8s-clusterscan-controller
-repo: github.com/sakthisrivivek/k8s-clusterscan-controller
+projectName: cluster-scan-monitor
+repo: github.com/Sakthisrivivek/cluster-scan-monitor
 resources:
 - api:
     crdVersion: v1
@@ -18,6 +18,6 @@ resources:
   domain: clusterscan.io
   group: batch
   kind: ClusterScan
-  path: github.com/sakthisrivivek/k8s-clusterscan-controller/v1alpha1
+  path: github.com/Sakthisrivivek/cluster-scan-monitor/tree/main/api/v1alpha1
   version: v1alpha1
 version: "3"

@@ -34,8 +34,8 @@ import (
 	metricsserver "sigs.k8s.io/controller-runtime/pkg/metrics/server"
 	"sigs.k8s.io/controller-runtime/pkg/webhook"
 
-	batchv1alpha1 "github.com/clusterscan/clusterscan-operator/api/v1alpha1"
-	"github.com/clusterscan/clusterscan-operator/internal/controller"
+	batchv1alpha1 "github.com/Sakthisrivivek/cluster-scan-monitor/tree/main/api/v1alpha1"
+	"github.com/Sakthisrivivek/cluster-scan-monitor/tree/main/internal/controller"
 	//+kubebuilder:scaffold:imports
 )
 
