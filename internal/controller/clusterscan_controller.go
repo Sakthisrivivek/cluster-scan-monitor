@@ -24,7 +24,7 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/log"
 
-	batchv1alpha1 "github.com/clusterscan/clusterscan-operator/api/v1alpha1"
+	batchv1alpha1 "github.com/sakthisrivivek/cluster-scan-monitor/api/v1alpha1"
 )
 
 // ClusterScanReconciler reconciles a ClusterScan object
