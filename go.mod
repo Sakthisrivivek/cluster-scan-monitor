@@ -1,9 +1,9 @@
 module github.com/sakthisrivivek/cluster-scan-monitor
 
-go 1.22.3
+go 1.22
+
 
 require (
-	github.com/Sakthisrivivek/cluster-scan-monitor v0.0.0-20240523224622-bf3e490a3819
 	github.com/onsi/ginkgo/v2 v2.18.0
 	github.com/onsi/gomega v1.33.1
 	k8s.io/api v0.30.1

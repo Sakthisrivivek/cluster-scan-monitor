@@ -30,7 +30,7 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/log"
 
-	v1alpha1 "github.com/sakthisrivivek/cluster-scan-monitor/api/v1alpha1"
+	"github.com/sakthisrivivek/cluster-scan-monitor/api/v1alpha1"
 )
 
 // ClusterScanReconciler reconciles a ClusterScan object
@@ -62,10 +62,10 @@ type ClusterScanReconciler struct {
 func (r *ClusterScanReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Result, error) {
 	_ = log.FromContext(ctx)
 
-	var clusterScan *v1alpha1.ClusterScan
+	var clusterScan v1alpha1.ClusterScan
 	nn := req.NamespacedName
 
-	if err := r.Get(ctx, nn, clusterScan); err != nil {
+	if err := r.Get(ctx, nn, &clusterScan); err != nil {
 		if apierrors.IsNotFound(err) {
 			log.Log.Info("ClusterScan not found", "NN", nn)
 
@@ -93,7 +93,7 @@ func (r *ClusterScanReconciler) Reconcile(ctx context.Context, req ctrl.Request)
 		log.Log.Info("Found no Secrets matching selector", "NN", nn)
 	}
 
-	jobConditions := []v1alpha1.ClusterScanCondition{}
+	var jobConditions []v1alpha1.ClusterScanCondition
 
 	for _, secret := range secrets.Items {
 		if err := isSecretValid(secret); err != nil {
@@ -103,8 +103,8 @@ func (r *ClusterScanReconciler) Reconcile(ctx context.Context, req ctrl.Request)
 			continue // skip Job creating if secret is invalid
 		}
 
-		jobName := getJobName(clusterScan, secret)
-		appendSecret(clusterScan, secret)
+		jobName := getJobName(&clusterScan, secret)
+		appendSecret(&clusterScan, secret)
 
 		//TODO: implement Schedule validation
 		if len(clusterScan.Spec.Schedule) > 0 {
@@ -113,7 +113,7 @@ func (r *ClusterScanReconciler) Reconcile(ctx context.Context, req ctrl.Request)
 			if err := r.Get(ctx, nn, cronJob); err != nil {
 				if apierrors.IsNotFound(err) {
 					log.Log.Info("CronJob not found. Creating...", "NN", nn)
-					if err := r.createCronJob(ctx, clusterScan, secret); err != nil {
+					if err := r.createCronJob(ctx, &clusterScan, secret); err != nil {
 						log.Log.Error(err, "Failed to create CronJob", "NN", nn)
 
 						return ctrl.Result{}, err
@@ -127,7 +127,7 @@ func (r *ClusterScanReconciler) Reconcile(ctx context.Context, req ctrl.Request)
 				return ctrl.Result{}, err
 			}
 
-			if err := r.updateCronJobSpec(ctx, clusterScan, cronJob); err != nil {
+			if err := r.updateCronJobSpec(ctx, &clusterScan, cronJob); err != nil {
 				log.Log.Error(err, "Failed to update CronJob", "NN", nn, "JOB_NAME", jobName)
 
 				return ctrl.Result{}, err
@@ -146,7 +146,7 @@ func (r *ClusterScanReconciler) Reconcile(ctx context.Context, req ctrl.Request)
 			if err := r.Get(ctx, nn, job); err != nil {
 				if apierrors.IsNotFound(err) {
 					log.Log.Info("Job not found. Creating...", "NN", nn)
-					if err := r.createJob(ctx, clusterScan, secret); err != nil {
+					if err := r.createJob(ctx, &clusterScan, secret); err != nil {
 						log.Log.Error(err, "Failed to create Job", "NN", nn)
 
 						return ctrl.Result{}, err
@@ -158,7 +158,7 @@ func (r *ClusterScanReconciler) Reconcile(ctx context.Context, req ctrl.Request)
 				return ctrl.Result{}, err
 			}
 
-			if err := r.updateJobSpec(ctx, clusterScan, job); err != nil {
+			if err := r.updateJobSpec(ctx, &clusterScan, job); err != nil {
 				log.Log.Error(err, "Failed to update Job", "NN", nn, "JOB_NAME", jobName)
 
 				return ctrl.Result{}, err
@@ -170,7 +170,7 @@ func (r *ClusterScanReconciler) Reconcile(ctx context.Context, req ctrl.Request)
 
 	clusterScan.Status.Conditions = jobConditions
 
-	err := r.Status().Update(ctx, clusterScan)
+	err := r.Status().Update(ctx, &clusterScan)
 	if err != nil {
 		log.Log.Info("Failed to update Status", "NN", nn)
 

@@ -9,7 +9,7 @@ plugins:
   manifests.sdk.operatorframework.io/v2: {}
   scorecard.sdk.operatorframework.io/v2: {}
 projectName: cluster-scan-monitor
-repo: github.com/Sakthisrivivek/cluster-scan-monitor
+repo: github.com/sakthisrivivek/cluster-scan-monitor
 resources:
 - api:
     crdVersion: v1
