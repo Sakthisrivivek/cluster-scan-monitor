@@ -64,6 +64,9 @@ type ClusterScanStatus struct {
 
 //+kubebuilder:object:root=true
 //+kubebuilder:subresource:status
+//+kubebuilder:resourse:path=clusterscans,shortName=clscn
+//+k8s:deepcopy-gen:interfaces=k8s.io/apimachinery/pkg/runtime.Object
+//+k8s:deepcopy-gen=true
 
 // ClusterScan is the Schema for the ClusterScan API
 type ClusterScan struct {
@@ -78,6 +81,7 @@ type ClusterScan struct {
 }
 
 //+kubebuilder:object:root=true
+//+k8s:deepcopy-gen:interfaces=k8s.io/apimachinery/pkg/runtime.Object
 
 // ClusterScanList contains a list of ClusterScan
 type ClusterScanList struct {

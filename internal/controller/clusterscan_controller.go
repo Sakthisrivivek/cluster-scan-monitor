@@ -25,6 +25,7 @@ import (
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"
+	"k8s.io/apimachinery/pkg/types"
 	"reflect"
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/client"
@@ -110,13 +111,15 @@ func (r *ClusterScanReconciler) Reconcile(ctx context.Context, req ctrl.Request)
 		if len(clusterScan.Spec.Schedule) > 0 {
 			cronJob := &batchv1.CronJob{}
 
-			if err := r.Get(ctx, nn, cronJob); err != nil {
+			if err := r.Get(ctx, types.NamespacedName{Name: jobName, Namespace: nn.Namespace}, cronJob); err != nil {
 				if apierrors.IsNotFound(err) {
 					log.Log.Info("CronJob not found. Creating...", "NN", nn)
 					if err := r.createCronJob(ctx, &clusterScan, secret); err != nil {
-						log.Log.Error(err, "Failed to create CronJob", "NN", nn)
+						if !apierrors.IsAlreadyExists(err) {
+							log.Log.Error(err, "Failed to create CronJob", "NN", nn)
 
-						return ctrl.Result{}, err
+							return ctrl.Result{}, err
+						}
 					}
 
 					return ctrl.Result{}, nil
@@ -143,13 +146,15 @@ func (r *ClusterScanReconciler) Reconcile(ctx context.Context, req ctrl.Request)
 		} else {
 			job := &batchv1.Job{}
 
-			if err := r.Get(ctx, nn, job); err != nil {
+			if err := r.Get(ctx, types.NamespacedName{Name: jobName, Namespace: nn.Namespace}, job); err != nil {
 				if apierrors.IsNotFound(err) {
 					log.Log.Info("Job not found. Creating...", "NN", nn)
 					if err := r.createJob(ctx, &clusterScan, secret); err != nil {
-						log.Log.Error(err, "Failed to create Job", "NN", nn)
+						if !apierrors.IsAlreadyExists(err) {
+							log.Log.Error(err, "Failed to create CronJob", "NN", nn)
 
-						return ctrl.Result{}, err
+							return ctrl.Result{}, err
+						}
 					}
 				}
 

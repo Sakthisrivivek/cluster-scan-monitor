@@ -51,7 +51,7 @@ endif
 OPERATOR_SDK_VERSION ?= v1.34.2
 
 # Image URL to use all building/pushing image targets
-IMG ?= controller:latest
+IMG ?= $(IMAGE_TAG_BASE):latest
 # ENVTEST_K8S_VERSION refers to the version of kubebuilder assets to be downloaded by envtest binary.
 ENVTEST_K8S_VERSION = 1.28.3
 
@@ -97,11 +97,11 @@ help: ## Display this help.
 
 .PHONY: manifests
 manifests: controller-gen ## Generate WebhookConfiguration, ClusterRole and CustomResourceDefinition objects.
-	$(CONTROLLER_GEN) rbac:roleName=manager-role crd webhook paths="./..." output:crd:artifacts:config=config/crd/bases
+	$(CONTROLLER_GEN) rbac:roleName=manager-role crd:generateEmbeddedObjectMeta=true webhook paths="./..." output:crd:artifacts:config=config/crd/bases
 
 .PHONY: generate
 generate: controller-gen ## Generate code containing DeepCopy, DeepCopyInto, and DeepCopyObject method implementations.
-	$(CONTROLLER_GEN) object:headerFile="hack/boilerplate.go.txt" paths="./..."
+	$(CONTROLLER_GEN) crd:generateEmbeddedObjectMeta=true object:headerFile="hack/boilerplate.go.txt" paths="./..."
 
 .PHONY: fmt
 fmt: ## Run go fmt against code.
@@ -258,6 +258,12 @@ bundle: manifests kustomize operator-sdk ## Generate bundle manifests and metada
 	$(KUSTOMIZE) build config/manifests | $(OPERATOR_SDK) generate bundle $(BUNDLE_GEN_FLAGS)
 	$(OPERATOR_SDK) bundle validate ./bundle
 
+.PHONY: bundle
+bundle-no-olm: manifests kustomize ## Generate bundle manifests and metadata, then validate generated files.
+	cd config/manager && $(KUSTOMIZE) edit set image controller=$(IMG)
+	mkdir -p bundle/manifests-no-olm
+	$(KUSTOMIZE) build config/manifests -o bundle/manifests-no-olm
+
 .PHONY: bundle-build
 bundle-build: ## Build the bundle image.
 	docker build -f bundle.Dockerfile -t $(BUNDLE_IMG) .
@@ -292,7 +298,7 @@ CATALOG_IMG ?= $(IMAGE_TAG_BASE)-catalog:v$(VERSION)
 
 # Set CATALOG_BASE_IMG to an existing catalog image tag to add $BUNDLE_IMGS to that image.
 ifneq ($(origin CATALOG_BASE_IMG), undefined)
-FROM_INDEX_OPT := --from-index $(CATALOG_BASE_IMG)
+FROM_INDEX_OFPT := --from-index $(CATALOG_BASE_IMG)
 endif
 
 # Build a catalog image by adding bundle images to an empty catalog using the operator package manager tool, 'opm'.
